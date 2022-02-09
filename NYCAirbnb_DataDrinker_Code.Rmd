@@ -1,6 +1,6 @@
 ---
 title: "Exploration of NYC Airbnb"
-author: "Data Drinkers"
+author: "Data Drinker"
 output: html_document
 ---
 ```{r}
@@ -12,7 +12,7 @@ my_packages <- c("tidyverse","ggplot2","dplyr", "tidytext", "glue", "scales")
 lapply(my_packages, require, character.only = TRUE)
 ```
 
-# Filtering the data to remove out of scope / redundant attributes
+**Filtering the data to remove out of scope / redundant attributes**
 ```{r}
 listings <- read_csv('listings.csv')
 listings_sel <- listings[c('id', 'last_scraped', 'name', 'host_id', 'host_name', 'host_since', 'host_location', 'host_about','host_response_time','host_response_rate','host_acceptance_rate', 'host_is_superhost', 'host_has_profile_pic', 'host_identity_verified', 'neighbourhood_cleansed', 'neighbourhood_group_cleansed', 'latitude', 'longitude', 'property_type', 'room_type', 'accommodates', 'bathrooms_text', 'bedrooms', 'beds', 'amenities', 'price', 'minimum_nights','maximum_nights','minimum_minimum_nights','has_availability', 'first_review', 'last_review', 'number_of_reviews','number_of_reviews_ltm','number_of_reviews_l30d','reviews_per_month','review_scores_rating', 'review_scores_accuracy', 'review_scores_cleanliness', 'review_scores_checkin', 'review_scores_communication', 'review_scores_location', 'review_scores_value', 'instant_bookable','host_listings_count','calculated_host_listings_count')]
@@ -20,27 +20,27 @@ write.csv(listings_sel,"listings_trimmed_cols.csv", row.names = FALSE)
 
 ```
 
-# Removing special characters and recalculating columns
-## Host_Response_Rate and Host_Acceptance_Rate is converted to numeric data type
-## Price is converted to numeric data type
+**Removing special characters and recalculating columns
+Host_Response_Rate and Host_Acceptance_Rate is converted to numeric data type
+Price is converted to numeric data type**
 ```{r}
 listings_sel$host_response_rate = as.numeric(gsub("%", "", listings_sel$host_response_rate))
 listings_sel$host_acceptance_rate = as.numeric(gsub("%", "", listings_sel$host_acceptance_rate))
 listings_sel$price = as.numeric(gsub("\\$", "", listings_sel$price))
 ```
 
-##Removed 31 records where host_is_superhost = NA 
+**Removed 31 records where host_is_superhost = NA** 
 ```{r}
 listings_sel = listings_sel%>% filter(!is.na(host_is_superhost))
 ```
 
-#Final Data Summary
+**Final Data Summary**
 ```{r}
 dim(listings_sel)
 write.csv(listings_sel,"listings_sel.csv", row.names = FALSE)
 ```
 
-#Distribution of Hosts Vs. Superhosts
+**Distribution of Hosts Vs. Superhosts**
 ```{r}
 total_SH = listings_sel%>% filter(!is.na(host_is_superhost)) %>% group_by(host_is_superhost) %>% summarise(n = n())
 
@@ -65,7 +65,7 @@ ggplot(total_SH, aes(x="", y=prop, fill=host_is_superhost))+ geom_bar(width = 1,
   scale_fill_brewer(palette="Set1")
 ```
 
-# Criteria1-  Respond to guests within 24 hours and maintain a response rate 90% or higher
+**Criteria1-  Respond to guests within 24 hours and maintain a response rate 90% or higher**
 ```{r}
 time_SH = listings_sel%>% filter(!is.na(host_response_time)) %>% filter(!is.na(host_response_rate))
 summary(time_SH)
@@ -74,12 +74,12 @@ summary(time_SH)
 ggplot(time_SH, aes(y=host_response_time, x=host_response_rate, color=host_is_superhost))+ geom_point(na.rm = TRUE)
 ```
 
-# Criteria2- 4.8 or higher overall ratings  
+**Criteria2- 4.8 or higher overall ratings**  
 ```{r}
 ggplot(time_SH, aes(y=host_id, x=review_scores_rating, color=host_is_superhost))+ geom_point(na.rm = TRUE)
 ```
 
-#Alexs data preprocessing 
+**data preprocessing** 
 ```{r}
 ABNB_data <- read.csv(file = "listings_sel.csv", na = c(" ","","na","NA", "N/A"))
 ABNB_data$host_is_superhost[which(ABNB_data$host_is_superhost == "t")] = TRUE
@@ -89,18 +89,18 @@ ABNB_data %>% select(neighbourhood_cleansed) %>% unique()
 ABNB_data %>% group_by(neighbourhood_group_cleansed) %>% count(name="totalcount")
 ```
 
-#superhosted out of the listing 
+**superhosted out of the listing** 
 ```{r}
 ABNB_data %>% select(neighbourhood_group_cleansed,host_is_superhost)%>%group_by(neighbourhood_group_cleansed) %>% summarise(SuperHosted = sum(host_is_superhost == TRUE,na.rm = TRUE), TotalListing = n())
 
 ```
 
-#grouping by superhost listing count 
+**grouping by superhost listing count** 
 ```{r}
 ABNB_data %>% group_by(neighbourhood_group_cleansed,host_is_superhost) %>% summarize(TotalListing = n())
 ```
 
-#without N/A 
+**without N/A** 
 ```{r}
 playdata <- ABNB_data %>% mutate(host_is_superhost=replace_na(host_is_superhost,FALSE))
 playdata %>% group_by(neighbourhood_group_cleansed,host_is_superhost) %>% summarize(TotalListing = n())
@@ -108,7 +108,7 @@ playdata %>% group_by(neighbourhood_group_cleansed,host_is_superhost) %>% summar
 ```
 
 
-#complete summary of borough listing with superhost status 
+**complete summary of borough listing with superhost status** 
 ```{r}
 
 playdata$price <- as.numeric(substring(playdata$price,2))
@@ -117,12 +117,12 @@ experiment_data
 
 ```
 
-#graph of revenue with superhost and different borough
+**graph of revenue with superhost and different borough**
 ```{r}
 ggplot(experiment_data,aes(x=neighbourhood_group_cleansed,y=EstRevenueMonth, fill=host_is_superhost)) + geom_bar(position = "dodge", stat="identity") + xlab("Borough") + ylab("Estimated Revenue") + scale_fill_discrete(name="Superhost") 
 ```
 
-#graph of listing bar graph fillin with superhost color fill 
+**graph of listing bar graph fillin with superhost color fill** 
 ```{r}
 ggplot(experiment_data, aes(TotalListing,color=neighbourhood_group_cleansed)) + geom_histogram()
 ggplot(playdata,aes(x=neighbourhood_group_cleansed, fill=host_is_superhost)) + geom_histogram(stat="count") + ylab("Total Number of Listing") + xlab("boroughs") + scale_fill_discrete(name ="SuperHost")
@@ -137,12 +137,12 @@ ggplot(playdata, aes(x=host_is_superhost, y=reviews_per_month)) + geom_violin()+
 
 ```
 
-#superhost mapping in NYC
+**superhost mapping in NYC**
 ```{r}
 ggplot(playdata, aes(x=longitude,y=latitude,color=host_is_superhost)) + geom_point() + scale_color_discrete(name ="SuperHost")
 ```  
 
-#NYC mapping pricing 
+**NYC mapping pricing** 
 ```{r}
 ggplot(playdata, aes(longitude,latitude)) + geom_point(aes(color=price)) + scale_color_gradient(low="green",high="red")
 ```
@@ -166,7 +166,7 @@ Percentage_of_superhost <- Percentage_of_superhost %>% summarise(Superhost_Perce
 Percentage_of_superhost
 ```
 
-#Aayush Exploration
+**Exploration**
 ```{r}
 if(!is.element("DAAG", installed.packages()[,1])){
   packageurl <- "https://cran.r-project.org/src/contrib/Archive/DAAG/DAAG_1.22.tar.gz"
@@ -336,7 +336,7 @@ review_words <- amenities %>%
   filter(!word %in% stop_words$word,
          str_detect(word, "^[a-z']+$"))
 
-#plot the graph
+ **plot the graph**
 top_amenities <- review_words %>%
   group_by(word) %>%
   summarise(count = n()) %>%
@@ -353,7 +353,7 @@ print(top_amenities)
 
 ```
 
-#mihir exploration
+**Exploration**
 ```{r}
 Airbnb = read.csv('listings_sel.csv')
 #only for superhost
@@ -396,7 +396,7 @@ new_df = Airbnb %>% filter(price <= 100 & beds == 2) %>% select(neighbourhood_gr
 new_df
 ```
 
-#This garph shows, this types of rooms can accommodate most people.
+# This garph shows, this types of rooms can accommodate most people.
 ```{r}
 ggplot(data=Airbnb, aes(x=accommodates,y=room_type, color = neighbourhood_group_cleansed))+
   geom_violin()+
@@ -414,11 +414,11 @@ host <- host[1:30, ]
 host
 ```
 
-a. Staten Island and Bronx are not included in top 30 number of reviews
-b. ‘Miss Dy’ from Queens is the highest with more than 600 number of reviews and price of her listing is below 100
-c. Second place is occupied by ‘J.E’ at Brooklyn with 655 number of review and price below 100 USD
-d. Third place is occupied by ‘Martin’ from brooklyn as well with 596 number of review and price below 100 USD
-e. Price around 300 USD is located at Manhattan with host name is ‘Seith’ and 467 number of reviews
+# a. Staten Island and Bronx are not included in top 30 number of reviews
+# b. ‘Miss Dy’ from Queens is the highest with more than 600 number of reviews and price of her listing is below 100
+# c. Second place is occupied by ‘J.E’ at Brooklyn with 655 number of review and price below 100 USD
+# d. Third place is occupied by ‘Martin’ from brooklyn as well with 596 number of review and price below 100 USD
+# e. Price around 300 USD is located at Manhattan with host name is ‘Seith’ and 467 number of reviews
 ```{r}
 ggplot(host,aes(host_name,number_of_reviews), number_of_reviews)+
    geom_col(fill ="green")+
