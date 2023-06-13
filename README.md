@@ -4,7 +4,7 @@ Airbnb has been providing unique opportunities for both entrepreneurs and travel
 For the second part, we decided to explore the Super Host status of Airbnb hosts. We explored the data to see if the conditions set by Airbnb for Superhost status are strictly followed for all the hosts? We also analyzed the concentration of Superhosts in NYC map and looked deep to see how being a Super Host holds value as a consumer and entrepreneur. 
 
 **Data Preprocessing** 
-The dataset we used is from ‘Inside Airbnb’, containing 37,713 records and 74 attributes. We preprocessed the data and removed 29 attributes that were either redundant or out of scope for our analysis. We transformed attributes like host_response_time, host_response_rate, price by removing special characters and converted their data type from character to numeric. As major part of our analysis focuses on Superhost status, we removed 31 NA records from ‘host_is_superhost’ attribute to get clean dataset for effective analysis. 
+The dataset we used is from ‘Inside Airbnb’, containing 37M records and 74 attributes. We preprocessed the data and removed 29 attributes that were either redundant or out of scope for our analysis. We transformed attributes like host_response_time, host_response_rate, price by removing special characters and converted their data type from character to numeric. As major part of our analysis focuses on Superhost status, we removed 31 NA records from ‘host_is_superhost’ attribute to get clean dataset for effective analysis. 
 
 **Exploration Data Analysis**
 Listing and Price Comparison for all 5 boroughs
